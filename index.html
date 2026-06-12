@@ -1,0 +1,1855 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>实习能量站 - 实习生成长导航智能看板</title>
+    <!-- 腾讯标准品牌蓝 #165DFF -->
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <script>
+        tailwind.config = { theme: { extend: {} } }
+    </script>
+    <!-- Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <style>
+        /* ============================================================
+           实习能量站 · 轻科技轻奢视觉体系
+           青蓝紫渐变 · 微光折线 · 极简亮眼
+           ============================================================ */
+
+        /* ===== 1. 全局字体 ===== */
+        * { font-family: 'PingFang SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif; }
+
+        /* ===== 2. Body 后台背景（同源浅冷白渐变） ===== */
+        body {
+            background: #eaecf0 !important;
+            min-height: 100vh !important;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            pointer-events: none;
+            z-index: 0;
+        }
+        main { position: relative; z-index: 1; }
+
+        /* ===== 卡片暖白柔和呼吸边框 ===== */
+        @keyframes borderGlow {
+            0%, 100% { border-color: rgba(255,248,240,0.5); box-shadow: 0 0 10px rgba(255,248,240,0.2), 0 0 25px rgba(255,248,240,0.08); }
+            50% { border-color: rgba(255,248,240,0.85); box-shadow: 0 0 18px rgba(255,248,240,0.4), 0 0 40px rgba(255,248,240,0.15); }
+        }
+
+        /* ===== 3. 顶部导航 ===== */
+        header.sticky {
+            background: linear-gradient(135deg, #165DFF 0%, #346FE8 100%) !important;
+            padding: 14px 32px !important;
+            box-shadow: 0 6px 30px rgba(22, 93, 255, 0.16);
+            backdrop-filter: blur(10px);
+            border-bottom: none;
+        }
+        header.sticky .max-w-7xl { padding: 0 !important; }
+        header.sticky h1 { font-size: 20px; letter-spacing: 0.5px; }
+        header.sticky .role-tab {
+            padding: 6px 20px !important;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+        header.sticky .role-tab.active {
+            background: rgba(255,255,255,0.93);
+            color: #165DFF;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        }
+
+        /* ===== 4. 玻璃磨砂卡片 ===== */
+        .td-card {
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(14px) saturate(1.3) !important;
+            -webkit-backdrop-filter: blur(14px) saturate(1.3) !important;
+            border-radius: 14px !important;
+            border: 1px solid #d8e1f2 !important;
+            box-shadow:
+                0 4px 24px rgba(20, 50, 100, 0.04),
+                0 1px 4px rgba(20, 50, 100, 0.02) !important;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+        }
+        .td-card:hover {
+            box-shadow:
+                0 12px 48px rgba(20, 50, 100, 0.08),
+                0 2px 8px rgba(20, 50, 100, 0.04) !important;
+            background: rgba(255, 255, 255, 0.92) !important;
+            border-color: #cad6ed !important;
+        }
+
+        /* 卡片垂直间距 28px */
+        .space-y-5 > :not([hidden]) ~ :not([hidden]) { margin-top: 28px; }
+
+        /* 卡片内部大幅留白 */
+        .td-card > .p-6 { padding: 28px 34px !important; }
+        .td-card > .p-5 { padding: 24px 30px !important; }
+        .td-card > .p-4 { padding: 20px 26px !important; }
+
+        /* ===== 5. 色彩分层体系 ===== */
+        :root {
+            --pri: #165DFF;
+            --pri-hover: #0f50d9;
+            --aux: #94a3d8;
+            --title: #1e293b;
+            --body: #475569;
+            --hint: #94a3b8;
+        }
+
+        /* 文字三阶灰度 */
+        .text-gray-800 { color: var(--title) !important; }
+        .text-gray-700 { color: var(--body) !important; }
+        .text-gray-600 { color: var(--body) !important; }
+        .text-gray-500 { color: var(--hint) !important; }
+        .text-gray-400 { color: #b4c1d6 !important; }
+        [class*="text-[#165DFF]"] { color: var(--pri) !important; }
+        [class*="bg-[#165DFF]"] { background-color: var(--pri) !important; }
+
+        /* 卡片标题行高（大厂排版） */
+        h2 { font-size: 17px; line-height: 1.6; font-weight: 600; color: var(--title); }
+        h3 { font-size: 15px; line-height: 1.5; font-weight: 600; color: var(--title); }
+
+        /* ===== 6. 按钮 ===== */
+        .td-btn {
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            letter-spacing: 0.3px;
+            transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .td-btn-primary {
+            background: var(--pri) !important;
+            color: #fff !important;
+            box-shadow: 0 2px 8px rgba(22, 93, 255, 0.16);
+        }
+        .td-btn-primary:hover {
+            background: var(--pri-hover) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(22, 93, 255, 0.26);
+        }
+        .td-btn-primary:active {
+            transform: translateY(0px);
+            box-shadow: 0 2px 8px rgba(22, 93, 255, 0.16);
+        }
+
+        /* 加载动画 */
+        .btn-loading { position: relative; pointer-events: none; opacity: 0.7; }
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            top: calc(50% - 8px);
+            left: calc(50% - 8px);
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.35);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: tdSpin 0.6s linear infinite;
+        }
+        @keyframes tdSpin { to { transform: rotate(360deg); } }
+
+        /* ===== 7. 进度条 ===== */
+        .progress-fill {
+            transition: width 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            background: linear-gradient(90deg, #165DFF, #4080ff) !important;
+            border-radius: 12px;
+            height: 100%;
+        }
+
+        /* ===== 8. 输入框 ===== */
+        .td-input {
+            border: 1.5px solid #dee4f0;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            background: #fff;
+            color: var(--body);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .td-input:focus {
+            border-color: #94a3d8;
+            box-shadow: 0 0 0 4px rgba(148, 163, 216, 0.12);
+        }
+        select.td-input {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8.5L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 34px;
+            appearance: none;
+        }
+
+        /* ===== 9. 滚动条 ===== */
+        .log-scroll { max-height: 200px; overflow-y: auto; }
+        .log-scroll::-webkit-scrollbar { width: 5px; }
+        .log-scroll::-webkit-scrollbar-thumb { background: #d0dae8; border-radius: 4px; }
+        .log-scroll::-webkit-scrollbar-track { background: transparent; }
+
+        /* ===== 10. 高风险脉冲 ===== */
+        .risk-glow { animation: riskPulse 2s infinite ease-in-out; }
+        @keyframes riskPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(227, 77, 89, 0.12); }
+            50% { box-shadow: 0 0 0 8px rgba(227, 77, 89, 0); }
+        }
+
+        /* ===== 11. 视图淡入 ===== */
+        .view-section { animation: tdFadeIn 0.35s ease; }
+        @keyframes tdFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== 12. 评分趋势 ===== */
+        .trend-item { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+        .trend-week { width: 50px; text-align: right; color: var(--hint); flex-shrink: 0; }
+        .trend-track { flex: 1; height: 22px; background: #eef2f8; border-radius: 6px; overflow: hidden; position: relative; }
+        .trend-fill { height: 100%; border-radius: 6px; transition: width 0.6s; min-width: 4px; }
+        .trend-val { position: absolute; right: 8px; top: 2px; font-size: 11px; font-weight: 600; }
+        .trend-comment { font-size: 12px; color: var(--hint); margin-left: 58px; padding: 4px 0; }
+        .history-comment-item { padding: 12px 16px; background: rgba(22,93,255,0.035); border-radius: 8px; border-left: 3px solid var(--pri); }
+        .history-comment-item .hc-week { font-size: 12px; font-weight: 600; color: var(--pri); }
+        .history-comment-item .hc-text { font-size: 13px; color: var(--body); margin-top: 4px; line-height: 1.6; }
+        .history-comment-item .hc-score { font-size: 11px; color: var(--hint); margin-top: 3px; }
+
+        /* ===== 13. 问答 ===== */
+        .qa-item { padding: 16px; border-radius: 10px; border: 1px solid #e6ecf5; background: rgba(255,255,255,0.45); }
+        .qa-item.unanswered { border-left: 4px solid var(--pri); background: rgba(22,93,255,0.025); }
+        .qa-item.answered { border-left: 4px solid #00A870; background: rgba(0,168,112,0.025); }
+        .qa-question { font-size: 14px; color: var(--body); line-height: 1.7; }
+        .qa-meta { font-size: 11px; color: var(--hint); margin-top: 4px; }
+        .qa-answer { margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e6ecf5; }
+        .qa-answer textarea {
+            width: 100%; border: 1.5px solid #dee4f0; border-radius: 8px;
+            padding: 10px 12px; font-size: 13px; resize: vertical; min-height: 50px;
+            outline: none; transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .qa-answer textarea:focus { border-color: #94a3d8; box-shadow: 0 0 0 4px rgba(148,163,216,0.12); }
+        .qa-answer .reply-text { font-size: 13px; color: #1a5e3a; background: rgba(0,168,112,0.06); padding: 10px 14px; border-radius: 8px; line-height: 1.6; }
+        .qa-empty { text-align: center; padding: 40px 0; color: var(--hint); font-size: 14px; }
+
+        /* ===== 14. 图表 ===== */
+        .bar-item { display: flex; align-items: center; gap: 12px; }
+        .bar-label { width: 42px; font-size: 13px; color: var(--hint); text-align: right; flex-shrink: 0; font-weight: 500; }
+        .bar-track { flex: 1; height: 26px; background: #eef2f8; border-radius: 8px; overflow: hidden; position: relative; }
+        .bar-fill { height: 100%; border-radius: 8px; transition: width 0.8s cubic-bezier(0.25,0.46,0.45,0.94); min-width: 0; }
+        .bar-value { position: absolute; right: 10px; top: 4px; font-size: 12px; font-weight: 600; color: var(--body); }
+        .pie-item { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+        .pie-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; box-shadow: inset 0 1px 2px rgba(0,0,0,0.04); }
+
+        /* ===== 15. 布局 ===== */
+        .mentor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 20px; }
+        .td-card .h-2 { height: 8px !important; }
+        .td-card .h-3 { height: 10px !important; }
+        .bg-gray-100 { background-color: #eef2f8 !important; }
+
+        /* 标题图标（主色强调） */
+        h2 i, h3 i:not(.history-comment-item *) { color: var(--pri) !important; }
+
+        /* ===== 16. 响应式 ===== */
+        @media (max-width: 640px) {
+            .mentor-grid { grid-template-columns: 1fr; gap: 14px; }
+            .td-card > .p-6 { padding: 20px 18px !important; }
+        }
+        @media print { .no-print { display: none !important; } }
+
+        /* ===== 17. 登录页 — 专业UI精修 ===== */
+        #loginPage { background: #eaecf0; position: relative; overflow: hidden; }
+        #loginPage::before {
+            content: '';
+            position: fixed;
+            top: -280px;
+            left: -200px;
+            width: 750px;
+            height: 750px;
+            background:
+                radial-gradient(ellipse at 30% 30%, rgba(250,242,232,0.65) 0%, transparent 65%),
+                radial-gradient(ellipse at 60% 20%, rgba(255,255,255,0.3) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .login-pattern {
+            position: fixed;
+            inset: 0;
+            background-repeat: repeat;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .login-input {
+            width: 100%; padding: 14px 18px; font-size: 15px;
+            border: 1px solid #e4e7ed; border-radius: 10px; outline: none;
+            transition: all 0.25s ease;
+            background: #fafbfc; color: #4e5969; text-align: center;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+        }
+        .login-input::placeholder { color: #b8c4d0; }
+        .login-input:focus {
+            border-color: #165DFF;
+            box-shadow: 0 0 0 3px rgba(22,93,255,0.08), inset 0 1px 2px rgba(0,0,0,0.02);
+            background: #fff;
+        }
+        .login-input:hover:not(:focus) { border-color: #d0d5dd; background: #f8f9fb; }
+        @keyframes loginBorderGlow {
+            0%, 100% {
+                border-color: rgba(255,244,235,0.6);
+                box-shadow:
+                    0 12px 48px rgba(0,0,0,0.06),
+                    0 2px 8px rgba(0,0,0,0.03),
+                    0 0 0 1px rgba(255,248,240,0.3);
+            }
+            50% {
+                border-color: rgba(255,240,225,0.9);
+                box-shadow:
+                    0 12px 56px rgba(0,0,0,0.07),
+                    0 2px 8px rgba(0,0,0,0.03),
+                    0 0 0 2px rgba(255,248,240,0.5);
+            }
+        }
+        .login-btn {
+            width: 100%; padding: 14px; font-size: 16px; font-weight: 600;
+            border: none; border-radius: 10px; cursor: pointer;
+            background: #165DFF; color: #fff;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 14px rgba(22,93,255,0.22);
+            transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .login-btn:hover {
+            background: #0f50d9; transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(22,93,255,0.32);
+        }
+        .login-btn:active {
+            transform: translateY(0px);
+            box-shadow: 0 2px 8px rgba(22,93,255,0.15);
+        }
+        .login-hint {
+            font-size: 12px; color: #a0abbd; line-height: 1.6; text-align: center;
+        }
+        .login-hint span { color: #7a8799; }
+        .login-deco {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            pointer-events: none; z-index: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===================== 全屏独立登录首页 ===================== -->
+    <div id="loginPage" class="flex items-center justify-center min-h-screen w-full" style="background:#eaecf0;position:relative;">
+        <div class="login-pattern" data-pattern="true" style="opacity:0.35;"></div>
+        <script>!function(){var p='%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22300%22%20height%3D%22300%22%20viewBox%3D%220%200%20300%20300%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M10%2040Q30%2020%2060%2035Q90%2050%20120%2030Q150%2010%20180%2035Q210%2060%20240%2035Q270%2010%20290%2025%22%2F%3E%3Cpath%20d%3D%22M20%2080Q50%2060%2080%2075Q110%2090%20140%2070Q170%2050%20200%2075Q230%20100%20260%2075Q280%2060%20290%2070%22%2F%3E%3Cpath%20d%3D%22M10%20130Q40%20110%2070%20125Q100%20140%20130%20120Q160%20100%20190%20125Q220%20150%20250%20125Q280%20100%20290%20115%22%2F%3E%3Cpath%20d%3D%22M25%20190Q55%20170%2085%20185Q115%20200%20145%20180Q175%20160%20205%20185Q235%20210%20265%20185Q285%20170%20290%20180%22%2F%3E%3Cpath%20d%3D%22M40%20250Q70%20230%20100%20245Q130%20260%20160%20240Q190%20220%20220%20245Q250%20270%20270%20250%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E';document.querySelector('[data-pattern]').style.backgroundImage='url(data:image/svg+xml,'+p+')';}()</script>
+        <div class="relative z-10" style="background:#fefefe;border-radius:22px;border:1.5px solid rgba(255,244,235,0.6);box-shadow:0 12px 48px rgba(0,0,0,0.06),0 2px 8px rgba(0,0,0,0.03);width:100%;max-width:420px;margin:20px;padding:44px 40px 36px;animation:loginBorderGlow 4s ease-in-out infinite;">
+            <!-- 图标 + 标题 -->
+            <div class="text-center">
+                <div class="w-18 h-18 mx-auto mb-5 rounded-full flex items-center justify-center" style="width:68px;height:68px;background:linear-gradient(135deg,#165DFF,#4080ff);box-shadow:0 4px 16px rgba(22,93,255,0.25);">
+                    <i class="fas fa-bolt text-white text-3xl" style="filter:drop-shadow(0 1px 2px rgba(0,0,0,0.1));"></i>
+                </div>
+                <h2 style="font-size:26px;font-weight:700;color:#101214;letter-spacing:1px;margin-bottom:4px;">实习能量站</h2>
+                <p style="font-size:14px;color:#828b99;margin-bottom:32px;">欢迎来到实习成长导航智能看板</p>
+            </div>
+
+            <!-- 登录表单 -->
+            <div class="space-y-4">
+                <input id="loginName" type="text" list="nameList" autocomplete="off"
+                       class="login-input"
+                       placeholder="请输入姓名"
+                       onmouseenter="this.style.borderColor='#e5e6eb'"
+                       onmouseleave="this.style.borderColor='#e5e6eb'"
+                       onfocus="this.style.borderColor='#165DFF';this.style.boxShadow='0 0 0 3px rgba(22,93,255,0.08)'"
+                       onblur="this.style.borderColor='#e5e6eb';this.style.boxShadow='none'"
+                       onkeypress="if(event.key==='Enter') document.getElementById('loginPwd').focus()" />
+                <datalist id="nameList">
+                    <option value="张明"><option value="李华"><option value="王磊"><option value="刘洋">
+                    <option value="陈浩"><option value="杨帆"><option value="赵宇"><option value="黄磊">
+                    <option value="周杰"><option value="林晓"><option value="吴婷"><option value="郑欣">
+                    <option value="孙丽"><option value="马悦"><option value="胡雪"><option value="高峰">
+                    <option value="唐强"><option value="沈洁"><option value="韩冰"><option value="曹磊">
+                </datalist>
+                <input id="loginPwd" type="password" autocomplete="off"
+                       class="login-input"
+                       placeholder="请输入密码"
+                       onmouseenter="this.style.borderColor='#e5e6eb'"
+                       onmouseleave="this.style.borderColor='#e5e6eb'"
+                       onfocus="this.style.borderColor='#165DFF';this.style.boxShadow='0 0 0 3px rgba(22,93,255,0.08)'"
+                       onblur="this.style.borderColor='#e5e6eb';this.style.boxShadow='none'"
+                       onkeypress="if(event.key==='Enter') doLogin()" />
+
+                <p id="loginNameError" class="hidden" style="color:#e5484d;font-size:12px;margin-top:4px;"><i class="fas fa-exclamation-circle"></i> 姓名不在系统中，请重新输入</p>
+                <p id="loginPwdError" class="hidden" style="color:#e5484d;font-size:12px;margin-top:4px;"><i class="fas fa-exclamation-circle"></i> 密码错误，请重新输入</p>
+                <p id="loginAttemptMsg" class="hidden" style="color:#e5484d;font-size:12px;margin-top:4px;"></p>
+
+                <div id="forgotPwdArea" class="hidden" style="margin-top:4px;">
+                    <button style="color:#165DFF;font-size:12px;text-decoration:underline;background:none;border:none;cursor:pointer;" onclick="showResetPwd()">
+                        <i class="fas fa-key"></i> 忘记密码？点击重置
+                    </button>
+                </div>
+
+                <button onclick="doLogin()" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> 登录
+                </button>
+
+                <div id="resetPwdArea" class="hidden" style="margin-top:20px;padding-top:20px;border-top:1px solid #edf2f7;">
+                    <p style="font-size:14px;font-weight:600;color:#475569;margin-bottom:12px;">重置密码</p>
+                    <input id="resetNewPwd" type="password"
+                           style="width:100%;padding:12px 16px;font-size:14px;border:1.5px solid #dee4f0;border-radius:8px;outline:none;background:#fff;text-align:center;margin-bottom:10px;"
+                           placeholder="输入新密码"
+                           onfocus="this.style.borderColor='#165DFF';this.style.boxShadow='0 0 0 4px rgba(22,93,255,0.08)'"
+                           onblur="this.style.borderColor='#dee4f0';this.style.boxShadow='none'"
+                           onkeypress="if(event.key==='Enter') document.getElementById('resetConfirmPwd').focus()" />
+                    <input id="resetConfirmPwd" type="password"
+                           style="width:100%;padding:12px 16px;font-size:14px;border:1.5px solid #dee4f0;border-radius:8px;outline:none;background:#fff;text-align:center;margin-bottom:8px;"
+                           placeholder="再次输入新密码"
+                           onfocus="this.style.borderColor='#165DFF';this.style.boxShadow='0 0 0 4px rgba(22,93,255,0.08)'"
+                           onblur="this.style.borderColor='#dee4f0';this.style.boxShadow='none'"
+                           onkeypress="if(event.key==='Enter') confirmResetPwd()" />
+                    <p id="resetPwdError" style="color:#e5484d;font-size:12px;display:none;"></p>
+                    <div style="display:flex;gap:10px;margin-top:8px;">
+                        <button onclick="confirmResetPwd()" style="flex:1;padding:10px;font-size:14px;font-weight:500;border:none;border-radius:8px;cursor:pointer;background:#165DFF;color:#fff;transition:all 0.2s;" onmouseover="this.style.background='#0f50d9';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#165DFF';this.style.transform='translateY(0)'"><i class="fas fa-save"></i> 确认重置</button>
+                        <button onclick="cancelResetPwd()" style="flex:1;padding:10px;font-size:14px;font-weight:500;border:1px solid #e5e6eb;border-radius:8px;cursor:pointer;background:#fff;color:#4e5969;transition:all 0.2s;" onmouseover="this.style.background='#f7f8fa'" onmouseout="this.style.background='#fff'">取消</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ===================== 后台面板（登录后显示） ===================== -->
+    <div id="dashboardPage" style="display:none;">
+
+    <!-- ===================== 退出按钮（右上角浮窗） ===================== -->
+    <div id="logoutBar" class="hidden fixed top-4 right-4 z-[9998]">
+        <button class="bg-white/90 hover:bg-white text-gray-700 px-3 py-1.5 rounded-lg shadow text-xs transition flex items-center gap-1" onclick="doLogout()">
+            <i class="fas fa-sign-out-alt"></i> 退出登录
+        </button>
+    </div>
+
+    <!-- ===================== 顶部导航栏 ===================== -->
+    <header class="bg-[#165DFF] text-white shadow-lg no-print sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+            <!-- logo + 标题 -->
+            <div class="flex items-center gap-3">
+                <i class="fas fa-bolt text-2xl"></i>
+                <h1 class="text-xl font-bold tracking-wide">实习能量站</h1>
+                <span class="hidden sm:inline text-sm opacity-70">| 实习生成长导航智能看板</span>
+            </div>
+            <!-- 角色切换 Tab（根据登录角色动态显示） -->
+            <div class="flex bg-white/15 rounded-lg p-1 gap-1" id="roleTabs">
+                <button class="role-tab px-5 py-2 text-sm font-medium" data-role="intern" id="tabIntern" onclick="switchRole('intern')" style="display:none;">
+                    <i class="fas fa-user-graduate mr-1"></i>实习生
+                </button>
+                <button class="role-tab px-5 py-2 text-sm font-medium text-white/80 hover:text-white" data-role="mentor" id="tabMentor" onclick="switchRole('mentor')" style="display:none;">
+                    <i class="fas fa-chalkboard-teacher mr-1"></i>带教导师
+                </button>
+                <button class="role-tab px-5 py-2 text-sm font-medium text-white/80 hover:text-white" data-role="hr" id="tabHr" onclick="switchRole('hr')" style="display:none;">
+                    <i class="fas fa-chart-bar mr-1"></i>HR总览
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===================== 主容器 ===================== -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+
+        <!-- ============================ 实习生视图 ============================ -->
+        <section id="view-intern" class="view-section space-y-5">
+
+            <!-- 个人档案 -->
+            <div class="td-card p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fas fa-id-card text-[#165DFF]"></i>个人档案
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm text-gray-500 mb-1.5">姓名</label>
+                        <input id="internName" type="text" readonly
+                               class="td-input w-full px-3 py-2 text-sm bg-gray-50 text-gray-600" />
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-500 mb-1.5">岗位</label>
+                        <select id="internPosition" class="td-input w-full px-3 py-2 text-sm bg-white" onchange="updateInternProfile()">
+                            <option>研发</option><option>产品</option><option>销售</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-500 mb-1.5">入职时长</label>
+                        <select id="internDuration" class="td-input w-full px-3 py-2 text-sm bg-white" onchange="updateInternProfile()">
+                            <option value="1">第1周</option><option value="2">第2周</option><option value="3">第3周</option><option value="4">第4周</option>
+                            <option value="5">第5周</option><option value="6" selected>第6周</option><option value="7">第7周</option><option value="8">第8周</option>
+                            <option value="9">第9周</option><option value="10">第10周</option><option value="11">第11周</option><option value="12">第12周</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- 6周成长进度条 -->
+                <div class="mt-4">
+                    <div class="flex justify-between text-sm text-gray-500 mb-1">
+                        <span>成长进度</span>
+                        <span id="progressPercent" class="font-semibold text-[#165DFF]">65%</span>
+                    </div>
+                    <div class="h-3 bg-gray-100 rounded-full overflow-hidden">
+                        <div id="progressBar" class="progress-fill h-full rounded-full" style="width:65%;background:linear-gradient(90deg,#165DFF,#4C7BFF);"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-400 mt-1">
+                        <span>1周</span><span>3周</span><span>6周</span><span>9周</span><span>12周</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI 本周任务生成 -->
+            <div class="td-card p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fas fa-robot text-[#165DFF]"></i>AI 本周任务生成
+                </h2>
+                <p class="text-sm text-gray-500 mb-4">选择你的岗位，AI 自动为你规划本周学习任务和技能目标</p>
+                <button id="genTaskBtn" class="td-btn td-btn-primary px-6 py-2.5 text-sm" onclick="generateTasks(this)">
+                    <i class="fas fa-magic mr-1"></i>生成本周任务
+                </button>
+                <div id="taskResult" class="mt-4 hidden">
+                    <div class="bg-[#EBF2FF] rounded-lg p-4 border border-blue-100">
+                        <h3 class="font-semibold text-[#165DFF] mb-2"><i class="fas fa-tasks mr-1"></i>本周学习任务</h3>
+                        <ul id="taskList" class="list-disc list-inside text-sm text-gray-700 space-y-1"></ul>
+                        <h3 class="font-semibold text-[#165DFF] mt-3 mb-2"><i class="fas fa-bullseye mr-1"></i>技能目标</h3>
+                        <ul id="skillList" class="list-disc list-inside text-sm text-gray-700 space-y-1"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 周报 AI 复盘 -->
+            <div class="td-card p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fas fa-file-alt text-[#165DFF]"></i>周报 AI 复盘
+                </h2>
+                <textarea id="weeklyReport" rows="4" class="td-input w-full px-4 py-3 text-sm resize-none"
+                placeholder="粘贴本周工作总结...&#10;例如：本周完成了用户模块的接口开发，参与了两次需求评审会..."></textarea>
+                <button id="reviewBtn" class="td-btn td-btn-primary mt-3 px-6 py-2.5 text-sm" onclick="aiReview(this)">
+                    <i class="fas fa-brain mr-1"></i>一键 AI 复盘
+                </button>
+                <div id="reviewResult" class="mt-4 hidden">
+                    <div class="bg-green-50 rounded-lg p-4 border border-green-100">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                            <div>
+                                <span class="font-semibold text-green-600">✨ 亮点</span>
+                                <p id="highlightText" class="text-gray-700 mt-1"></p>
+                            </div>
+                            <div>
+                                <span class="font-semibold text-amber-600">⚠️ 不足</span>
+                                <p id="weaknessText" class="text-gray-700 mt-1"></p>
+                            </div>
+                            <div>
+                                <span class="font-semibold text-blue-600">💡 改进建议</span>
+                                <p id="suggestionText" class="text-gray-700 mt-1"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 打卡日志 -->
+            <div class="td-card p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fas fa-calendar-check text-[#165DFF]"></i>打卡日志
+                </h2>
+                <div class="flex gap-3">
+                    <input id="logInput" type="text" class="td-input flex-1 px-4 py-2.5 text-sm" placeholder="记录今天的工作/学习内容..." />
+                    <button class="td-btn td-btn-primary px-5 py-2.5 text-sm" onclick="addLog(this)">
+                        <i class="fas fa-plus mr-1"></i>打卡
+                    </button>
+                </div>
+                <div class="log-scroll mt-4 space-y-2" id="logList"></div>
+            </div>
+
+            <!-- 向导师提问 -->
+            <div class="td-card p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fas fa-question-circle text-[#165DFF]"></i>向导师提问
+                </h2>
+                <div class="flex gap-3">
+                    <input id="questionInput" type="text" class="td-input flex-1 px-4 py-2.5 text-sm" placeholder="输入你想问导师的问题..." />
+                    <button class="td-btn td-btn-primary px-5 py-2.5 text-sm" onclick="askQuestion(this)">
+                        <i class="fas fa-paper-plane mr-1"></i>发送
+                    </button>
+                </div>
+                <div class="mt-4 space-y-3" id="internQuestionList"></div>
+            </div>
+        </section>
+
+        <!-- ============================ 带教导师视图 ============================ -->
+        <section id="view-mentor" class="view-section space-y-5 hidden">
+
+            <h2 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                <i class="fas fa-users text-[#165DFF]"></i>名下实习生进度
+            </h2>
+            <div class="mentor-grid" id="mentorCardList"></div>
+
+            <!-- AI 标准化带教指引 -->
+            <div class="td-card p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fas fa-graduation-cap text-[#165DFF]"></i>AI 标准化带教指引
+                </h2>
+                <p class="text-sm text-gray-500 mb-4" id="guideDesc">选择岗位，一键查看每周带教规范与打分细则</p>
+                <div class="flex flex-wrap gap-2 mb-4" id="guideBtns">
+                    <button class="td-btn td-btn-primary px-5 py-2 text-sm" data-guide="研发" onclick="showGuide('研发', this)" style="display:none;">研发指引</button>
+                    <button class="td-btn td-btn-primary px-5 py-2 text-sm" data-guide="产品" onclick="showGuide('产品', this)" style="display:none;">产品指引</button>
+                    <button class="td-btn td-btn-primary px-5 py-2 text-sm" data-guide="销售" onclick="showGuide('销售', this)" style="display:none;">销售指引</button>
+                </div>
+                <div id="guideResult" class="hidden">
+                    <div class="bg-purple-50 rounded-lg p-4 border border-purple-100 text-sm text-gray-700"></div>
+                </div>
+            </div>
+
+            <!-- 打分与评语 -->
+            <div class="td-card p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fas fa-star text-[#165DFF]"></i>给实习生打分 &amp; 评语
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-gray-500 mb-1.5">选择实习生</label>
+                        <select id="scoreIntern" class="td-input w-full px-3 py-2 text-sm bg-white"></select>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-500 mb-1.5">打分（1-100）</label>
+                        <input id="scoreInput" type="number" min="1" max="100" value="85" class="td-input w-full px-3 py-2 text-sm" />
+                    </div>
+                </div>
+                <textarea id="mentorCommentInput" rows="3" class="td-input mt-3 w-full px-4 py-3 text-sm resize-none" placeholder="输入对实习生的评语..."></textarea>
+                <button class="td-btn td-btn-primary mt-3 px-6 py-2.5 text-sm" onclick="saveMentorScore()">
+                    <i class="fas fa-save mr-1"></i>保存评价
+                </button>
+                <p id="scoreStatus" class="text-sm text-green-600 mt-2 hidden"><i class="fas fa-check-circle"></i> 评价已保存</p>
+            </div>
+
+            <!-- 实习生提问列表 -->
+            <div class="td-card p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fas fa-inbox text-[#165DFF]"></i>实习生提问
+                </h2>
+                <div id="mentorQuestionList"></div>
+            </div>
+        </section>
+
+        <!-- ============================ HR 总览视图 ============================ -->
+        <section id="view-hr" class="view-section space-y-5 hidden">
+
+            <!-- KPI 统计卡片（TDesign 风格） -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div class="td-card p-5 border-l-4" style="border-left-color:#165DFF;">
+                    <div class="text-3xl font-bold text-[#165DFF]" id="hrTotal">-</div>
+                    <div class="text-sm text-gray-500 mt-1">实习生总人数</div>
+                </div>
+                <div class="td-card p-5 border-l-4" style="border-left-color:#00A870;">
+                    <div class="text-3xl font-bold text-[#00A870]" id="hrAvg">-</div>
+                    <div class="text-sm text-gray-500 mt-1">平均完成度</div>
+                </div>
+                <div class="td-card p-5 border-l-4" style="border-left-color:#E34D59;">
+                    <div class="text-3xl font-bold text-[#E34D59]" id="hrRisk">-</div>
+                    <div class="text-sm text-gray-500 mt-1">落后人数（&lt;30%）</div>
+                </div>
+                <div class="td-card p-5 border-l-4" style="border-left-color:#f59e0b;">
+                    <div class="text-3xl font-bold text-amber-500" id="hrExcellent">-</div>
+                    <div class="text-sm text-gray-500 mt-1">优秀人数（&gt;80%）</div>
+                </div>
+            </div>
+
+            <!-- Chart.js 图表 -->
+            <div class="td-card p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fas fa-chart-bar text-[#165DFF]"></i>各岗位平均完成度 &amp; 整体进度分布
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <!-- 纯CSS柱状图 -->
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-600 mb-3 text-center">各岗位平均完成度</h3>
+                        <div id="pureBarChart" class="space-y-3"></div>
+                    </div>
+                    <!-- 纯CSS饼图 -->
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-600 mb-3 text-center">整体进度分布</h3>
+                        <div id="purePieChart" class="flex flex-col items-center gap-3">
+                            <div id="pieVisual" class="w-40 h-40 rounded-full shadow-inner" style="background:conic-gradient(#ccc 0deg 360deg);"></div>
+                            <div id="pieLegend" class="flex flex-wrap justify-center gap-3 text-xs"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 基础台账：导师带教情况 -->
+            <div class="td-card p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fas fa-book-open text-[#165DFF]"></i>基础台账 · 导师带教情况
+                </h2>
+                <div id="ledgerContent" class="space-y-4"></div>
+            </div>
+
+            <!-- 进度一览表 -->
+            <div class="td-card p-6">
+                <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+                    <h2 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                        <i class="fas fa-list text-[#165DFF]"></i>实习生进度一览
+                    </h2>
+                    <button class="td-btn td-btn-primary px-5 py-2 text-sm" onclick="copySummary()">
+                        <i class="fas fa-copy mr-1"></i>一键复制汇总报告
+                    </button>
+                </div>
+                <div class="flex flex-wrap gap-2 mb-3 pb-3 border-b border-gray-100" id="hrFilters">
+                    <select id="hrFilterPos" class="td-input px-3 py-1.5 text-xs bg-white" onchange="renderHR()">
+                        <option value="">全部岗位</option>
+                        <option value="研发">研发</option>
+                        <option value="产品">产品</option>
+                        <option value="销售">销售</option>
+                    </select>
+                    <select id="hrFilterDuration" class="td-input px-3 py-1.5 text-xs bg-white" onchange="renderHR()">
+                        <option value="">全部时长</option>
+                        <option value="1-4">1-4周</option>
+                        <option value="5-8">5-8周</option>
+                        <option value="9-12">9-12周</option>
+                    </select>
+                    <select id="hrFilterProgress" class="td-input px-3 py-1.5 text-xs bg-white" onchange="renderHR()">
+                        <option value="">全部进度</option>
+                        <option value="danger">需关注 (&lt;30%)</option>
+                        <option value="normal">正常 (30%-80%)</option>
+                        <option value="good">优秀 (&gt;80%)</option>
+                    </select>
+                    <span class="text-xs text-gray-400 self-center ml-auto" id="hrFilterCount">共 20 人</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="text-left text-gray-500 border-b border-gray-200">
+                                <th class="py-2.5 pr-3 font-medium">姓名</th>
+                                <th class="py-2.5 pr-3 font-medium">岗位</th>
+                                <th class="py-2.5 pr-3 font-medium">时长</th>
+                                <th class="py-2.5 pr-3 font-medium">完成度</th>
+                                <th class="py-2.5 pr-3 font-medium">导师评分</th>
+                                <th class="py-2.5 font-medium">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hrTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ===================== 私信弹窗 ===================== -->
+    <div id="msgModal" class="fixed inset-0 bg-black/40 z-[999] flex items-center justify-center hidden" onclick="closeMsgModal(event)">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 p-6" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                    <i class="fas fa-envelope text-[#165DFF]"></i>
+                    发送私信给 <span id="msgTarget" class="text-[#165DFF]"></span>
+                </h3>
+                <button class="text-gray-400 hover:text-gray-600 text-xl" onclick="closeMsgModal()">&times;</button>
+            </div>
+            <div class="mb-4">
+                <label class="text-sm text-gray-500 mb-1.5 block">收信人角色</label>
+                <input id="msgRole" type="text" readonly
+                       class="td-input w-full px-3 py-2 text-sm bg-gray-50 text-gray-600" />
+            </div>
+            <div class="mb-4">
+                <label class="text-sm text-gray-500 mb-1.5 block">消息内容</label>
+                <textarea id="msgContent" rows="4"
+                          class="td-input w-full px-4 py-3 text-sm resize-none"
+                          placeholder="请输入要发送的消息..."></textarea>
+            </div>
+            <div class="flex justify-end gap-3">
+                <button class="td-btn px-5 py-2 text-sm border border-gray-200 text-gray-600 hover:bg-gray-50" onclick="closeMsgModal()">取消</button>
+                <button class="td-btn td-btn-primary px-5 py-2 text-sm" onclick="sendMsg()">
+                    <i class="fas fa-paper-plane mr-1"></i>发送消息
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== 导师-实习生详情弹窗 ===================== -->
+    <div id="internDetailModal" class="fixed inset-0 bg-black/40 z-[998] flex items-center justify-center hidden" onclick="closeInternDetail(event)" style="backdrop-filter:blur(2px);">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 max-h-[85vh] overflow-y-auto" onclick="event.stopPropagation()">
+            <div class="sticky top-0 bg-white z-10 flex items-center justify-between p-5 border-b">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                    <i class="fas fa-user-circle text-[#165DFF]"></i>
+                    <span id="detailInternName"></span>
+                    <span id="detailInternPos" class="text-sm font-normal text-gray-400"></span>
+                </h3>
+                <button class="text-gray-400 hover:text-gray-600 text-xl" onclick="closeInternDetail()">&times;</button>
+            </div>
+            <div class="p-5 space-y-5">
+                <!-- 概览 -->
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="text-center p-3 bg-blue-50 rounded-lg">
+                        <div class="text-2xl font-bold text-[#165DFF]" id="detailProgress">-</div>
+                        <div class="text-xs text-gray-500 mt-1">当前完成度</div>
+                    </div>
+                    <div class="text-center p-3 bg-green-50 rounded-lg">
+                        <div class="text-2xl font-bold text-green-600" id="detailScore">-</div>
+                        <div class="text-xs text-gray-500 mt-1">当前评分</div>
+                    </div>
+                    <div class="text-center p-3 bg-purple-50 rounded-lg">
+                        <div class="text-2xl font-bold text-purple-600" id="detailWeeks">-</div>
+                        <div class="text-xs text-gray-500 mt-1">已记录周数</div>
+                    </div>
+                </div>
+                <!-- 评分趋势 -->
+                <div>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3"><i class="fas fa-chart-line text-[#165DFF]"></i> 历史评分趋势</h4>
+                    <div id="scoreTrend" class="space-y-2"></div>
+                </div>
+                <!-- 历史评语 -->
+                <div>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3"><i class="fas fa-comment-dots text-[#165DFF]"></i> 历史评语记录</h4>
+                    <div id="historyComments" class="space-y-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        // 1. 角色映射：20人各归其位
+        // ================================================================
+        // 实习生（15人）
+        var INTERN_NAMES = ['张明', '李华', '王磊', '刘洋', '陈浩', '杨帆', '赵宇',
+                            '孙丽', '马悦', '胡雪', '高峰', '唐强', '沈洁', '韩冰', '曹磊'];
+        // 带教导师（3人）
+        var MENTOR_NAMES = ['黄磊', '周杰', '林晓'];
+        // HR（2人）
+        var HR_NAMES = ['吴婷', '郑欣'];
+
+        var ALL_NAMES = INTERN_NAMES.concat(MENTOR_NAMES).concat(HR_NAMES);
+
+        // 默认密码：所有人统一为 123456，可单独修改
+        var PASSWORD_MAP = {};
+        ALL_NAMES.forEach(function(n) { PASSWORD_MAP[n] = '123456'; });
+        // 从 localStorage 加载已重置的密码
+        try {
+            var savedPwds = JSON.parse(localStorage.getItem('customPasswords')) || {};
+            for (var k in savedPwds) {
+                if (savedPwds.hasOwnProperty(k) && ALL_NAMES.indexOf(k) > -1) {
+                    PASSWORD_MAP[k] = savedPwds[k];
+                }
+            }
+        } catch(e) {}
+
+        /** 根据姓名获取角色 */
+        function getRole(name) {
+            if (INTERN_NAMES.indexOf(name) > -1) return 'intern';
+            if (MENTOR_NAMES.indexOf(name) > -1) return 'mentor';
+            if (HR_NAMES.indexOf(name) > -1) return 'hr';
+            return null;
+        }
+
+        /** 当前登录用户 */
+        var currentUser = null;
+
+        // ================================================================
+        // 2. 姓名 → 岗位 映射表
+        // ================================================================
+        var NAME_TO_POS = {};
+        // 前8人研发，6人产品，6人销售（按ALL_NAMES顺序：实习生15人+导师3人+HR2人）
+        var POS_LIST = ['研发','研发','研发','研发','研发','研发','研发','研发', // 0-7
+                        '产品','产品','产品','产品','产品','产品',               // 8-13
+                        '销售','销售','销售','销售','销售','销售'];              // 14-19
+        for (var pi = 0; pi < ALL_NAMES.length; pi++) {
+            NAME_TO_POS[ALL_NAMES[pi]] = POS_LIST[pi];
+        }
+
+        // ================================================================
+        // 3. 模拟数据：20人实习生池（仅供内部计算）
+        // ================================================================
+        var NAMES = ALL_NAMES;
+        var DURATIONS = [30, 30, 60, 60, 90, 30, 60, 90, 60, 30,
+            90, 60, 30, 90, 60, 30, 60, 90, 60, 30
+        ];
+
+        // 生成 20 名实习生，完成度健康分布于 15 ~ 95
+        var internData = [];
+        for (var i = 0; i < 20; i++) {
+            var base = 15 + Math.round(Math.random() * 70);
+            var bonus = DURATIONS[i] === 90 ? 12 : (DURATIONS[i] === 60 ? 6 : 0);
+            var progress = Math.min(98, base + bonus);
+            var pos = i < 8 ? '研发' : (i < 14 ? '产品' : '销售');
+            internData.push({
+                id: i,
+                name: NAMES[i],
+                position: pos,
+                duration: DURATIONS[i],
+                progress: progress,
+                mentorScore: Math.round(progress * 0.85 + Math.random() * 15),
+                mentorComment: ''
+            });
+        }
+
+        /** 获取失败尝试次数 */
+        function getAttempts(name) {
+            try { return JSON.parse(localStorage.getItem('loginAttempts')) || {}; } catch(e) { return {}; }
+        }
+        function saveAttempts(data) { localStorage.setItem('loginAttempts', JSON.stringify(data)); }
+
+        // ================================================================
+        // 4. 登录 / 登出
+        // ================================================================
+        function doLogin() {
+            var name = document.getElementById('loginName').value.trim();
+            var pwd = document.getElementById('loginPwd').value.trim();
+            var role = getRole(name);
+
+            // 隐藏所有错误提示
+            document.getElementById('loginNameError').classList.add('hidden');
+            document.getElementById('loginPwdError').classList.add('hidden');
+            document.getElementById('loginAttemptMsg').classList.add('hidden');
+            document.getElementById('forgotPwdArea').classList.add('hidden');
+
+            if (!role) {
+                document.getElementById('loginNameError').classList.remove('hidden');
+                return;
+            }
+            if (PASSWORD_MAP[name] !== pwd) {
+                document.getElementById('loginPwdError').classList.remove('hidden');
+                // 记录失败次数
+                var attempts = getAttempts();
+                attempts[name] = (attempts[name] || 0) + 1;
+                saveAttempts(attempts);
+                var left = 5 - attempts[name];
+                if (left > 0) {
+                    document.getElementById('loginAttemptMsg').textContent = '密码错误，还剩 ' + left + ' 次机会';
+                    document.getElementById('loginAttemptMsg').classList.remove('hidden');
+                } else {
+                    document.getElementById('forgotPwdArea').classList.remove('hidden');
+                    document.getElementById('loginAttemptMsg').textContent = '已连续输错5次，请重置密码';
+                    document.getElementById('loginAttemptMsg').classList.remove('hidden');
+                }
+                return;
+            }
+            // 登录成功，清除该用户的失败记录
+            var attempts = getAttempts();
+            delete attempts[name];
+            saveAttempts(attempts);
+            // 存好岗位信息
+            var pos = NAME_TO_POS[name] || '研发';
+            currentUser = { name: name, role: role, position: pos };
+
+            // 隐藏登录页，显示后台面板
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('dashboardPage').style.display = 'block';
+
+            // 显示退出按钮
+            document.getElementById('logoutBar').classList.remove('hidden');
+
+            // 只显示当前角色对应的 tab
+            var tabMap = { intern: 'tabIntern', mentor: 'tabMentor', hr: 'tabHr' };
+            document.getElementById(tabMap[role]).style.display = 'inline-block';
+
+            // 如果是实习生，登录前先填充姓名（供 switchRole 渲染用）
+            if (role === 'intern') {
+                document.getElementById('internName').value = name;
+                document.getElementById('internPosition').value = pos;
+                document.getElementById('internPosition').disabled = true;
+                document.getElementById('internPosition').classList.add('bg-gray-50', 'text-gray-600');
+            }
+
+            // 自动激活当前角色的视图和 tab（此时 currentUser 已完整）
+            switchRole(role);
+
+            // 如果是导师，额外渲染带教指引（只显示本岗位）
+            if (role === 'mentor') {
+                var btns = document.querySelectorAll('#guideBtns button');
+                btns.forEach(function(b) { b.style.display = 'none'; });
+                var targetBtn = document.querySelector('#guideBtns button[data-guide="' + pos + '"]');
+                if (targetBtn) {
+                    targetBtn.style.display = 'inline-block';
+                    document.getElementById('guideDesc').textContent = pos + '岗位 · 每周带教规范与打分细则';
+                    showGuide(pos, targetBtn);
+                }
+            }
+        }
+
+        function doLogout() {
+            currentUser = null;
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('dashboardPage').style.display = 'none';
+            document.getElementById('logoutBar').classList.add('hidden');
+            // 隐藏所有 tab
+            ['tabIntern', 'tabMentor', 'tabHr'].forEach(function(id) {
+                document.getElementById(id).style.display = 'none';
+            });
+            // 隐藏所有视图
+            ['intern', 'mentor', 'hr'].forEach(function(v) {
+                document.getElementById('view-' + v).classList.add('hidden');
+            });
+            document.getElementById('loginName').value = '';
+            document.getElementById('loginPwd').value = '';
+            document.getElementById('loginNameError').classList.add('hidden');
+            document.getElementById('loginPwdError').classList.add('hidden');
+            document.getElementById('loginAttemptMsg').classList.add('hidden');
+            document.getElementById('forgotPwdArea').classList.add('hidden');
+            document.getElementById('resetPwdArea').classList.add('hidden');
+        }
+
+        /** 显示重置密码界面 */
+        function showResetPwd() {
+            document.getElementById('forgotPwdArea').classList.add('hidden');
+            document.getElementById('resetPwdArea').classList.remove('hidden');
+            document.getElementById('resetNewPwd').value = '';
+            document.getElementById('resetConfirmPwd').value = '';
+            document.getElementById('resetPwdError').classList.add('hidden');
+            document.getElementById('resetNewPwd').focus();
+        }
+
+        /** 取消重置，返回登录 */
+        function cancelResetPwd() {
+            document.getElementById('resetPwdArea').classList.add('hidden');
+            document.getElementById('loginPwd').value = '';
+            document.getElementById('loginPwd').focus();
+        }
+
+        /** 确认重置密码 */
+        function confirmResetPwd() {
+            var name = document.getElementById('loginName').value.trim();
+            if (!getRole(name)) { alert('请先输入正确的姓名'); return; }
+            var newPwd = document.getElementById('resetNewPwd').value.trim();
+            var confirmPwd = document.getElementById('resetConfirmPwd').value.trim();
+            var errEl = document.getElementById('resetPwdError');
+
+            if (!newPwd || newPwd.length < 4) {
+                errEl.textContent = '密码至少4个字符';
+                errEl.classList.remove('hidden');
+                return;
+            }
+            if (newPwd !== confirmPwd) {
+                errEl.textContent = '两次输入的密码不一致';
+                errEl.classList.remove('hidden');
+                return;
+            }
+            errEl.classList.add('hidden');
+
+            // 保存新密码到 localStorage
+            var customPwds = JSON.parse(localStorage.getItem('customPasswords')) || {};
+            customPwds[name] = newPwd;
+            localStorage.setItem('customPasswords', JSON.stringify(customPwds));
+            // 更新内存中的密码映射
+            PASSWORD_MAP[name] = newPwd;
+
+            // 清除该用户的失败记录
+            var attempts = getAttempts();
+            delete attempts[name];
+            saveAttempts(attempts);
+
+            document.getElementById('resetPwdArea').classList.add('hidden');
+            document.getElementById('loginPwd').value = '';
+            document.getElementById('loginPwdError').classList.add('hidden');
+            document.getElementById('loginAttemptMsg').classList.add('hidden');
+            document.getElementById('forgotPwdArea').classList.add('hidden');
+            alert('✅ 密码重置成功，请使用新密码登录');
+        }
+
+        // ================================================================
+        // 5. 角色切换
+        // ================================================================
+        function switchRole(role) {
+            // 隐藏所有视图
+            ['intern', 'mentor', 'hr'].forEach(function(v) {
+                document.getElementById('view-' + v).classList.add('hidden');
+            });
+            // 显示目标视图
+            document.getElementById('view-' + role).classList.remove('hidden');
+
+            // 切换 tab 样式
+            document.querySelectorAll('.role-tab').forEach(function(t) {
+                t.classList.remove('active');
+                t.classList.add('text-white/80');
+            });
+            var active = document.querySelector('.role-tab[data-role="' + role + '"]');
+            active.classList.add('active');
+            active.classList.remove('text-white/80');
+
+            // 各视图渲染
+            if (role === 'hr') renderHR();
+            if (role === 'mentor') { renderMentor(); renderMentorQuestions(); }
+            if (role === 'intern') { updateInternProfile(); renderInternQuestions(); }
+        }
+
+        // ================================================================
+        // 6. 实习生个人档案更新（按周计算成长进度，1-12周）
+        // ================================================================
+        function updateInternProfile() {
+            var week = parseInt(document.getElementById('internDuration').value);
+            // 第1周~第12周分别对应 8%、15%、23%、30%、38%、46%、54%、61%、69%、77%、84%、92%
+            var weekMap = [0, 8, 15, 23, 30, 38, 46, 54, 61, 69, 77, 84, 92];
+            var pct = weekMap[week] || 46;
+            // 再按姓名微调 ±10%
+            var name = document.getElementById('internName').value;
+            var idx = ALL_NAMES.indexOf(name);
+            if (idx >= 0) {
+                pct = Math.min(98, Math.max(5, pct + (idx % 5 - 2) * 2));
+            }
+            document.getElementById('progressPercent').textContent = pct + '%';
+            document.getElementById('progressBar').style.width = pct + '%';
+        }
+
+        // ================================================================
+        // 7. AI 本周任务生成（按周动态变化）
+        // ================================================================
+        function generateTasks(btn) {
+            btn.classList.add('btn-loading');
+            btn.disabled = true;
+            setTimeout(function() {
+                btn.classList.remove('btn-loading');
+                btn.disabled = false;
+
+                var pos = document.getElementById('internPosition').value;
+                var week = parseInt(document.getElementById('internDuration').value);
+
+                // 按周分4个阶段：适应期(1-3)、基础(4-6)、进阶(7-9)、独立(10-12)
+                var phase = week <= 3 ? 0 : (week <= 6 ? 1 : (week <= 9 ? 2 : 3));
+                var tasks, skills;
+
+                var TASK_MAP = {
+                    '研发': [
+                        { tasks: ['搭建本地开发环境', '阅读项目代码结构与规范文档', '熟悉 Git 分支管理流程', '完成 Hello World API 开发'],
+                          skills: ['掌握 IDE 和调试工具使用', '理解项目整体架构', '熟悉 Git 协作基础'] },
+                        { tasks: ['完成首个 CRUD 接口开发', '编写单元测试用例', '参与代码 Review', '修复 3 个低级别 Bug'],
+                          skills: ['能够独立完成模块开发', '掌握单元测试编写', '理解代码规范与质量要求'] },
+                        { tasks: ['独立承担子模块开发', '参与技术方案讨论', '编写接口文档', '完成性能优化任务'],
+                          skills: ['具备模块级设计能力', '掌握性能分析工具', '能够撰写技术文档'] },
+                        { tasks: ['主导一个功能模块全流程', '指导新人代码 Review', '输出技术分享 PPT', '提交代码质量改进提案'],
+                          skills: ['具备技术领导力潜质', '能够独当一面解决问题', '有知识分享输出能力'] }
+                    ],
+                    '产品': [
+                        { tasks: ['学习产品分析工具（Axure/XMind）', '体验并分析 3 款竞品', '撰写用户画像初稿', '参与需求评审会旁听'],
+                          skills: ['掌握基础产品工具使用', '理解竞品分析方法', '了解需求评审流程'] },
+                        { tasks: ['独立撰写一个功能 PRD', '完成用户访谈并输出纪要', '跟进 2 个需求落地', '整理产品数据报表'],
+                          skills: ['能够独立撰写 PRD 文档', '掌握用户调研方法', '具备基础数据分析能力'] },
+                        { tasks: ['负责一个小功能迭代全流程', '制作产品原型并演示', '跨部门沟通推进需求', '输出上线数据分析报告'],
+                          skills: ['具备产品迭代管理能力', '能够独立制作高保真原型', '有跨团队协作经验'] },
+                        { tasks: ['独立负责产品模块规划', '撰写季度产品路线图', '组织需求评审会', '输出用户增长方案'],
+                          skills: ['具备产品规划能力', '能独立推动项目落地', '有数据驱动决策思维'] }
+                    ],
+                    '销售': [
+                        { tasks: ['学习产品知识手册', '记录 3 通客户通话并总结', '参与销售话术演练', '整理目标客户清单'],
+                          skills: ['掌握基础产品知识', '了解标准销售流程', '熟悉 CRM 系统操作'] },
+                        { tasks: ['独立完成 5 次客户外呼', '撰写客户拜访记录', '跟进 3 个意向客户', '参与销售复盘会'],
+                          skills: ['能够独立进行客户沟通', '掌握拜访记录撰写', '了解销售漏斗管理'] },
+                        { tasks: ['独立完成客户拜访全流程', '参与商务谈判准备', '达成 1 个小额成交', '输出客户案例分析'],
+                          skills: ['具备独立拜访能力', '掌握基本谈判技巧', '有实际成交经验'] },
+                        { tasks: ['独立负责区域客户维护', '制定客户跟进策略', '完成季度销售目标', '输出销售经验分享'],
+                          skills: ['具备客户关系管理能力', '能制定销售策略', '有销售团队协作经验'] }
+                    ]
+                };
+
+                var data = TASK_MAP[pos] || TASK_MAP['研发'];
+                var phaseData = data[phase] || data[0];
+                tasks = phaseData.tasks;
+                skills = phaseData.skills;
+
+                // 根据具体周数微调任务标题
+                var weekRange = phase === 0 ? '1-3周' : (phase === 1 ? '4-6周' : (phase === 2 ? '7-9周' : '10-12周'));
+
+                document.getElementById('taskList').innerHTML =
+                    tasks.map(function(t) { return '<li>' + t + '</li>'; }).join('');
+                document.getElementById('skillList').innerHTML =
+                    skills.map(function(s) { return '<li>' + s + '</li>'; }).join('');
+                document.getElementById('taskResult').classList.remove('hidden');
+                document.getElementById('taskResult').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 800);
+        }
+
+        // ================================================================
+        // 8. AI 周报复盘（模拟）
+        // ================================================================
+        function aiReview(btn) {
+            var text = document.getElementById('weeklyReport').value.trim();
+            if (!text) { alert('请先填写周报内容！'); return; }
+
+            btn.classList.add('btn-loading');
+            btn.disabled = true;
+
+            setTimeout(function() {
+                btn.classList.remove('btn-loading');
+                btn.disabled = false;
+
+                var h, w, s;
+                if (text.length < 20) {
+                    h = '内容较简短，建议详细描述日常工作。';
+                    w = '缺少具体数据和工作成果。';
+                    s = '建议按"做了什么-遇到什么-怎么解决-结果如何"结构整理。';
+                } else if (text.indexOf('完成') > -1 || text.indexOf('实现') > -1) {
+                    h = '按时完成了既定任务，有明确的工作产出。';
+                    w = '对问题的深入分析和思考较少。';
+                    s = '建议增加技术/业务层面的总结和思考。';
+                } else if (text.indexOf('学习') > -1) {
+                    h = '学习态度积极，主动获取新知识。';
+                    w = '学习成果转化不够具体。';
+                    s = '将学到的知识应用到实际工作中，形成可量化的成果。';
+                } else {
+                    h = '工作态度认真，完成了本周基本任务。';
+                    w = '文字描述比较笼统，缺少具体案例。';
+                    s = '记录具体的工作案例和遇到的技术难点。';
+                }
+
+                document.getElementById('highlightText').textContent = h;
+                document.getElementById('weaknessText').textContent = w;
+                document.getElementById('suggestionText').textContent = s;
+                document.getElementById('reviewResult').classList.remove('hidden');
+                document.getElementById('reviewResult').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 1000);
+        }
+
+        // ================================================================
+        // 9. 打卡日志（localStorage 持久化）
+        // ================================================================
+        function loadLogs() {
+            var logs = JSON.parse(localStorage.getItem('energyLogs')) || [];
+            var list = document.getElementById('logList');
+            if (logs.length === 0) {
+                list.innerHTML = '<div class="text-sm text-gray-400 text-center py-4">暂无打卡记录，开始第一次打卡吧！</div>';
+                return;
+            }
+            list.innerHTML = logs.map(function(log) {
+                return '<div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">' +
+                    '<i class="fas fa-check-circle text-green-500 mt-0.5"></i>' +
+                    '<div><div class="text-sm text-gray-700">' + log.text + '</div>' +
+                    '<div class="text-xs text-gray-400 mt-0.5">' + log.time + '</div></div></div>';
+            }).join('');
+        }
+
+        function addLog(btn) {
+            var input = document.getElementById('logInput');
+            var text = input.value.trim();
+            if (!text) { alert('请输入打卡内容！'); return; }
+
+            btn.classList.add('btn-loading');
+            btn.disabled = true;
+
+            setTimeout(function() {
+                btn.classList.remove('btn-loading');
+                btn.disabled = false;
+
+                var logs = JSON.parse(localStorage.getItem('energyLogs')) || [];
+                var now = new Date();
+                var timeStr = now.toLocaleString('zh-CN', { hour12: false });
+                logs.unshift({ text: text, time: timeStr });
+                localStorage.setItem('energyLogs', JSON.stringify(logs));
+                input.value = '';
+                loadLogs();
+            }, 400);
+        }
+
+        // ================================================================
+        // 10. 导师视图：实习生进度卡片（按岗位过滤）
+        // ================================================================
+        function renderMentor() {
+            // 判断当前登录用户是否为导师，若是则只显示其岗位下的实习生
+            var mentorPos = (currentUser && currentUser.role === 'mentor') ? currentUser.position : null;
+            var filtered = mentorPos ? internData.filter(function(d) { return d.position === mentorPos; }) : internData;
+
+            var container = document.getElementById('mentorCardList');
+            container.innerHTML = filtered.map(function(d) {
+                var isRisk = d.progress < 30;
+                var isStar = d.progress > 80;
+                var borderColor = isRisk ? 'border-red-300' : (isStar ? 'border-green-300' : 'border-blue-100');
+                var bgColor = isRisk ? 'bg-red-50' : (isStar ? 'bg-green-50' : 'bg-white');
+                var icon = isRisk ? 'fa-exclamation-triangle text-red-500' : (isStar ? 'fa-star text-amber-400' :
+                    'fa-user text-[#165DFF]');
+
+                return '<div class="td-card p-4 border-l-4 cursor-pointer ' + borderColor + ' ' + bgColor + '" onclick="openInternDetail(' + d.id + ')">' +
+                    '<div class="flex items-center gap-3 mb-3">' +
+                    '<div class="w-10 h-10 rounded-full bg-[#165DFF]/10 flex items-center justify-center text-[#165DFF] font-bold text-sm">' +
+                    d.name[0] + '</div>' +
+                    '<div class="flex-1"><div class="font-semibold text-gray-800">' + d.name + '</div>' +
+                    '<div class="text-xs text-gray-400">' + d.position + '岗位 · 点击查看详情 <i class="fas fa-chevron-right text-[10px]"></i></div></div>' +
+                    '<i class="fas ' + icon + '"></i></div>' +
+                    '<div class="flex items-center gap-2 text-sm"><span class="text-gray-500 shrink-0">完成度</span>' +
+                    '<div class="flex-1 h-2 bg-gray-100 rounded-full">' +
+                    '<div class="h-full rounded-full progress-fill" style="width:' +
+                    d.progress + '%"></div></div>' +
+                    '<span class="font-semibold text-gray-700 w-8 text-right">' + d.progress + '%</span></div>' +
+                    '<div class="text-xs text-gray-400 mt-2">导师评分：' + d.mentorScore + ' 分</div></div>';
+            }).join('');
+
+            // 填充打分下拉（只显示本岗位实习生）
+            document.getElementById('scoreIntern').innerHTML = filtered.map(function(d) {
+                return '<option value="' + d.id + '">' + d.name + ' - ' + d.position + '</option>';
+            }).join('');
+        }
+
+        // ================================================================
+        // 11. AI 标准化带教指引
+        // ================================================================
+        var GUIDE_DATA = {
+            '研发': {
+                weeks: ['第1周：熟悉技术栈与开发环境', '第2-3周：基础模块开发', '第4周：参与项目实战', '第5-6周：独立产出'],
+                standards: ['代码规范检查通过率 ≥ 90%', '需求理解准确，答辩得分 ≥ 80', '团队协作沟通评分 ≥ 85', '项目交付质量评分 ≥ 90'],
+                rules: ['编码能力（40%）：代码质量、规范、效率', '业务理解（25%）：需求把握、方案设计', '协作沟通（20%）：团队配合、知识分享',
+                    '学习能力（15%）：成长速度、主动性'
+                ]
+            },
+            '产品': {
+                weeks: ['第1周：学习产品方法论与工具', '第2-3周：需求文档撰写', '第4周：参与产品迭代', '第5-6周：独立负责模块'],
+                standards: ['PRD 文档完整性评分 ≥ 85', '数据分析能力评分 ≥ 80', '跨部门沟通评分 ≥ 85', '产品思维评分 ≥ 90'],
+                rules: ['产品设计（35%）：文档质量、逻辑清晰', '数据分析（25%）：数据敏感度、洞察力', '沟通协作（25%）：跨团队推动力',
+                    '用户洞察（15%）：同理心、用户思维'
+                ]
+            },
+            '销售': {
+                weeks: ['第1周：了解产品与销售流程', '第2-3周：客户沟通训练', '第4周：独立客户拜访', '第5-6周：完成销售目标'],
+                standards: ['产品知识考核 ≥ 85 分', '客户沟通评分 ≥ 80', '拜访记录完整度 ≥ 90%', '销售目标完成率 ≥ 80%'],
+                rules: ['销售技能（35%）：话术、谈判、跟进', '客户关系（25%）：满意度、回访率', '目标达成（25%）：KPI 完成率',
+                    '学习能力（15%）：产品掌握、行业认知'
+                ]
+            }
+        };
+
+        function showGuide(pos, btn) {
+            var parent = btn.parentElement;
+            parent.querySelectorAll('button').forEach(function(b) {
+                b.classList.remove('bg-[#1146CC]');
+                b.classList.add('bg-[#165DFF]');
+            });
+            btn.classList.remove('bg-[#165DFF]');
+            btn.classList.add('bg-[#1146CC]');
+
+            var data = GUIDE_DATA[pos];
+            var html = '<h3 class="font-semibold text-purple-700 mb-2">📅 ' + pos + '岗位 - 每周带教规范</h3>' +
+                '<ul class="list-disc list-inside space-y-1 mb-3">' +
+                data.weeks.map(function(w) { return '<li>' + w + '</li>'; }).join('') + '</ul>' +
+                '<h3 class="font-semibold text-purple-700 mb-2">📋 考核标准</h3>' +
+                '<ul class="list-disc list-inside space-y-1 mb-3">' +
+                data.standards.map(function(s) { return '<li>' + s + '</li>'; }).join('') + '</ul>' +
+                '<h3 class="font-semibold text-purple-700 mb-2">📊 打分细则</h3>' +
+                '<ul class="list-disc list-inside space-y-1">' +
+                data.rules.map(function(r) { return '<li>' + r + '</li>'; }).join('') + '</ul>';
+
+            var result = document.getElementById('guideResult');
+            result.querySelector('div').innerHTML = html;
+            result.classList.remove('hidden');
+        }
+
+        // ================================================================
+        // 12. 导师打分保存（localStorage，含历史记录）
+        // ================================================================
+        function getScoreHistory(internId) {
+            try { return JSON.parse(localStorage.getItem('scoreHistory_' + internId)) || []; } catch(e) { return []; }
+        }
+        function saveScoreHistory(internId, history) {
+            localStorage.setItem('scoreHistory_' + internId, JSON.stringify(history));
+        }
+
+        function saveMentorScore() {
+            var id = parseInt(document.getElementById('scoreIntern').value);
+            var score = parseInt(document.getElementById('scoreInput').value);
+            var comment = document.getElementById('mentorCommentInput').value.trim();
+            if (score < 1 || score > 100) { alert('打分范围 1-100'); return; }
+
+            internData[id].mentorScore = score;
+            internData[id].mentorComment = comment;
+
+            localStorage.setItem('mentorScores', JSON.stringify(
+                internData.map(function(d) { return { id: d.id, score: d.mentorScore, comment: d.mentorComment }; })
+            ));
+
+            // 同时记录历史评分（每周一条）
+            var history = getScoreHistory(id);
+            var week = parseInt(document.getElementById('internDuration').value) || 6;
+            // 检查该周是否已有记录，有则更新，无则新增
+            var found = false;
+            for (var hi = 0; hi < history.length; hi++) {
+                if (history[hi].week === week) {
+                    history[hi].score = score;
+                    history[hi].comment = comment;
+                    history[hi].time = new Date().toLocaleString('zh-CN', { hour12: false });
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                history.push({ week: week, score: score, comment: comment, time: new Date().toLocaleString('zh-CN', { hour12: false }) });
+            }
+            history.sort(function(a, b) { return a.week - b.week; });
+            saveScoreHistory(id, history);
+
+            // 记录导师履职时间
+            if (currentUser && currentUser.role === 'mentor') {
+                var act = JSON.parse(localStorage.getItem('mentorActivity')) || {};
+                if (!act[currentUser.name]) act[currentUser.name] = { lastScore: '', lastComment: '', scoredInterns: [] };
+                act[currentUser.name].lastScore = Date.now();
+                if (act[currentUser.name].scoredInterns.indexOf(id) === -1) act[currentUser.name].scoredInterns.push(id);
+                if (comment) act[currentUser.name].lastComment = Date.now();
+                localStorage.setItem('mentorActivity', JSON.stringify(act));
+            }
+
+            var status = document.getElementById('scoreStatus');
+            status.classList.remove('hidden');
+            setTimeout(function() { status.classList.add('hidden'); }, 2000);
+        }
+
+        // 加载导师评语
+        function loadMentorScores() {
+            var saved = localStorage.getItem('mentorScores');
+            if (saved) {
+                try {
+                    var arr = JSON.parse(saved);
+                    arr.forEach(function(item) {
+                        if (internData[item.id]) {
+                            internData[item.id].mentorScore = item.score;
+                            internData[item.id].mentorComment = item.comment;
+                        }
+                    });
+                } catch (e) {}
+            }
+        }
+
+        // ================================================================
+        // 13. 实习生提问 & 导师回答
+        // ================================================================
+        /** 获取问答数据 */
+        function getQA() {
+            try { return JSON.parse(localStorage.getItem('qaData')) || []; } catch(e) { return []; }
+        }
+
+        /** 保存问答数据 */
+        function saveQA(data) {
+            localStorage.setItem('qaData', JSON.stringify(data));
+        }
+
+        /** 实习生提问 */
+        function askQuestion(btn) {
+            var input = document.getElementById('questionInput');
+            var text = input.value.trim();
+            if (!text) { alert('请输入问题内容！'); return; }
+
+            btn.classList.add('btn-loading');
+            btn.disabled = true;
+            setTimeout(function() {
+                btn.classList.remove('btn-loading');
+                btn.disabled = false;
+
+                var name = document.getElementById('internName').value;
+                var qa = getQA();
+                qa.push({
+                    id: Date.now(),
+                    internName: name,
+                    question: text,
+                    time: new Date().toLocaleString('zh-CN', { hour12: false }),
+                    answer: '',
+                    answerTime: ''
+                });
+                saveQA(qa);
+                input.value = '';
+                renderInternQuestions();
+                showToast('✅ 问题已发送给导师');
+            }, 300);
+        }
+
+        /** 渲染实习生的提问列表 */
+        function renderInternQuestions() {
+            var name = document.getElementById('internName').value;
+            var qa = getQA().filter(function(item) { return item.internName === name; });
+            var list = document.getElementById('internQuestionList');
+
+            if (qa.length === 0) {
+                list.innerHTML = '<div class="qa-empty"><i class="far fa-comment-dots text-2xl block mb-2"></i>暂无提问，开始向导师提问吧</div>';
+                return;
+            }
+
+            list.innerHTML = qa.slice().reverse().map(function(item) {
+                var statusClass = item.answer ? 'answered' : 'unanswered';
+                var statusBadge = item.answer ? '<span class="text-xs text-green-600 ml-2">✅ 已回复</span>' : '<span class="text-xs text-[#165DFF] ml-2">⏳ 待回复</span>';
+                var answerHtml = item.answer
+                    ? '<div class="qa-answer"><div class="reply-text"><i class="fas fa-reply mr-1"></i>' + item.answer + '</div><div class="qa-meta">导师回复 · ' + item.answerTime + '</div></div>'
+                    : '<div class="qa-answer"><div class="text-xs text-gray-400">等待导师回复...</div></div>';
+                return '<div class="qa-item ' + statusClass + '">' +
+                    '<div class="qa-question"><i class="fas fa-quote-left text-gray-300 mr-1"></i>' + item.question + statusBadge + '</div>' +
+                    '<div class="qa-meta">' + item.time + '</div>' +
+                    answerHtml + '</div>';
+            }).join('');
+        }
+
+        /** 渲染导师看到的实习生提问列表 */
+        function renderMentorQuestions() {
+            var mentorPos = currentUser && currentUser.role === 'mentor' ? currentUser.position : null;
+            var qa = getQA();
+            // 只显示本岗位实习生的提问
+            if (mentorPos) {
+                var internNames = internData.filter(function(d) { return d.position === mentorPos; }).map(function(d) { return d.name; });
+                qa = qa.filter(function(item) { return internNames.indexOf(item.internName) > -1; });
+            }
+            var list = document.getElementById('mentorQuestionList');
+
+            if (qa.length === 0) {
+                list.innerHTML = '<div class="qa-empty"><i class="far fa-inbox text-2xl block mb-2"></i>暂无实习生提问</div>';
+                return;
+            }
+
+            list.innerHTML = qa.slice().reverse().map(function(item) {
+                var statusClass = item.answer ? 'answered' : 'unanswered';
+                var answerSection = item.answer
+                    ? '<div class="qa-answer"><div class="reply-text"><i class="fas fa-reply mr-1"></i>' + item.answer + '</div><div class="qa-meta">已回复 · ' + item.answerTime + '</div></div>'
+                    : '<div class="qa-answer"><textarea id="replyInput_' + item.id + '" placeholder="输入回复..."></textarea>' +
+                      '<button class="td-btn td-btn-primary text-xs px-3 py-1.5 mt-1" onclick="replyQuestion(' + item.id + ')"><i class="fas fa-reply mr-1"></i>回复</button></div>';
+                return '<div class="qa-item ' + statusClass + '">' +
+                    '<div class="qa-question"><strong>' + item.internName + '：</strong>' + item.question +
+                    (item.answer ? '<span class="text-xs text-green-600 ml-2">✅ 已回复</span>' : '<span class="text-xs text-[#165DFF] ml-2">⏳ 待回复</span>') +
+                    '</div><div class="qa-meta">' + item.time + '</div>' +
+                    answerSection + '</div>';
+            }).join('');
+        }
+
+        /** 导师回复问题 */
+        function replyQuestion(qaId) {
+            var reply = document.getElementById('replyInput_' + qaId);
+            var text = reply.value.trim();
+            if (!text) { alert('请输入回复内容！'); return; }
+
+            var qa = getQA();
+            for (var i = 0; i < qa.length; i++) {
+                if (qa[i].id === qaId) {
+                    qa[i].answer = text;
+                    qa[i].answerTime = new Date().toLocaleString('zh-CN', { hour12: false });
+                    break;
+                }
+            }
+            saveQA(qa);
+            renderMentorQuestions();
+            showToast('✅ 已回复实习生');
+        }
+
+        /** 打开实习生详情弹窗（历史评分趋势+评语） */
+        function openInternDetail(internId) {
+            var intern = internData[internId];
+            if (!intern) return;
+            var history = getScoreHistory(internId);
+
+            document.getElementById('detailInternName').textContent = intern.name;
+            document.getElementById('detailInternPos').textContent = intern.position + ' · ' + intern.mentorScore + '分';
+            document.getElementById('detailProgress').textContent = intern.progress + '%';
+            document.getElementById('detailScore').textContent = intern.mentorScore + '分';
+            document.getElementById('detailWeeks').textContent = history.length + '周';
+
+            // 评分趋势
+            if (history.length === 0) {
+                document.getElementById('scoreTrend').innerHTML = '<div class="text-sm text-gray-400 text-center py-4">暂无评分记录</div>';
+            } else {
+                var maxScore = 100;
+                document.getElementById('scoreTrend').innerHTML = history.map(function(h) {
+                    var pct = Math.min(100, h.score);
+                    var color = h.score >= 80 ? '#00A870' : (h.score >= 60 ? '#f59e0b' : '#E34D59');
+                    return '<div class="trend-item"><span class="trend-week">第' + h.week + '周</span>' +
+                        '<div class="trend-track"><div class="trend-fill" style="width:' + pct + '%;background:' + color + '"></div>' +
+                        '<span class="trend-val" style="color:' + (h.score >= 60 ? 'white' : '#333') + '">' + h.score + '分</span></div></div>' +
+                        (h.comment ? '<div class="trend-comment">💬 ' + h.comment + '</div>' : '');
+                }).join('');
+            }
+
+            // 历史评语
+            var commentsHtml = '';
+            if (history.length === 0) {
+                commentsHtml = '<div class="text-sm text-gray-400 text-center py-4">暂无评语</div>';
+            } else {
+                // 倒序（最新的在前）
+                var reversed = history.slice().reverse();
+                commentsHtml = reversed.map(function(h) {
+                    return '<div class="history-comment-item">' +
+                        '<div class="hc-week">第' + h.week + '周 · 评分 ' + h.score + '</div>' +
+                        (h.comment ? '<div class="hc-text">' + h.comment + '</div>' : '<div class="hc-text text-gray-400">（本周无评语）</div>') +
+                        '<div class="hc-score">' + h.time + '</div></div>';
+                }).join('');
+            }
+            document.getElementById('historyComments').innerHTML = commentsHtml;
+
+            document.getElementById('internDetailModal').classList.remove('hidden');
+        }
+
+        function closeInternDetail(e) {
+            if (e && e.target !== document.getElementById('internDetailModal')) return;
+            document.getElementById('internDetailModal').classList.add('hidden');
+        }
+
+        /** 页面顶部浮动提示 */
+        function showToast(msg) {
+            var el = document.getElementById('globalToast');
+            if (!el) {
+                el = document.createElement('div');
+                el.id = 'globalToast';
+                el.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#333;color:white;padding:10px 24px;border-radius:8px;font-size:14px;z-index:99999;opacity:0;transition:opacity 0.3s;pointer-events:none;';
+                document.body.appendChild(el);
+            }
+            el.textContent = msg;
+            el.style.opacity = '1';
+            clearTimeout(el._timer);
+            el._timer = setTimeout(function() { el.style.opacity = '0'; }, 2500);
+        }
+
+        // ================================================================
+        // 14. HR 总览（纯CSS图表 + 筛选）
+        // ================================================================
+        function getFilteredData() {
+            var pos = document.getElementById('hrFilterPos').value;
+            var dur = document.getElementById('hrFilterDuration').value;
+            var prog = document.getElementById('hrFilterProgress').value;
+
+            return internData.filter(function(d) {
+                if (pos && d.position !== pos) return false;
+                // 入职时长：用索引范围模拟周数分布
+                var weekRange = d.id < 5 ? '1-4' : (d.id < 12 ? '5-8' : '9-12');
+                if (dur && weekRange !== dur) return false;
+                if (prog === 'danger' && d.progress >= 30) return false;
+                if (prog === 'normal' && (d.progress < 30 || d.progress > 80)) return false;
+                if (prog === 'good' && d.progress <= 80) return false;
+                return true;
+            });
+        }
+
+        /** 渲染基础台账 - 导师带教情况 */
+        function renderLedger() {
+            var mentorList = ['黄磊', '周杰', '林晓'];
+            var activity = JSON.parse(localStorage.getItem('mentorActivity')) || {};
+            var now = Date.now();
+
+            var html = mentorList.map(function(mName) {
+                var mPos = NAME_TO_POS[mName] || '研发';
+                // 该导师名下的实习生
+                var myInterns = internData.filter(function(d) { return d.position === mPos; });
+                var count = myInterns.length;
+                var avgProgress = count > 0 ? Math.round(myInterns.reduce(function(s, d) { return s + d.progress; }, 0) / count) : 0;
+                var avgScore = count > 0 ? Math.round(myInterns.reduce(function(s, d) { return s + d.mentorScore; }, 0) / count) : 0;
+
+                // 对比同岗位导师的平均评分
+                var posAllInterns = internData.filter(function(d) { return d.position === mPos; });
+                var posAvg = posAllInterns.length > 0 ? Math.round(posAllInterns.reduce(function(s, d) { return s + d.mentorScore; }, 0) / posAllInterns.length) : 0;
+                var compareText = avgScore >= posAvg ? '高于' : '低于';
+                var compareColor = avgScore >= posAvg ? 'text-green-600' : 'text-red-600';
+
+                // 履职情况
+                var act = activity[mName] || {};
+                var hasScored = act.lastScore ? true : false;
+                var hasCommented = act.lastComment ? true : false;
+                var scoreCount = act.scoredInterns ? act.scoredInterns.length : 0;
+                var needRemind = false;
+                var remindText = '';
+                if (hasScored && act.lastScore) {
+                    var daysDiff = (now - act.lastScore) / (1000 * 86400);
+                    if (daysDiff > 14) { needRemind = true; remindText = '⚠️ 已' + Math.round(daysDiff) + '天未打分'; }
+                } else {
+                    needRemind = true; remindText = '⚠️ 从未打分';
+                }
+
+                var statusIcon = needRemind ? 'fa-exclamation-triangle text-red-500' : 'fa-check-circle text-green-500';
+                var statusBg = needRemind ? 'bg-red-50 border-red-200' : 'bg-white';
+
+                return '<div class="td-card p-4 ' + statusBg + '">' +
+                    '<div class="flex items-center gap-3 mb-3">' +
+                    '<div class="w-10 h-10 rounded-full bg-[#165DFF]/10 flex items-center justify-center text-[#165DFF] font-bold">' + mName[0] + '</div>' +
+                    '<div class="flex-1"><div class="font-semibold text-gray-800">' + mName + '</div>' +
+                    '<div class="text-xs text-gray-400">' + mPos + '岗 · 带教 ' + count + ' 名实习生</div></div>' +
+                    '<i class="fas ' + statusIcon + ' text-lg"></i></div>' +
+
+                    '<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">' +
+                    '<div class="text-center p-2 bg-blue-50 rounded"><div class="font-bold text-[#165DFF]">' + count + '</div><div class="text-xs text-gray-500">带教人数</div></div>' +
+                    '<div class="text-center p-2 bg-green-50 rounded"><div class="font-bold text-green-600">' + avgProgress + '%</div><div class="text-xs text-gray-500">平均完成度</div></div>' +
+                    '<div class="text-center p-2 bg-purple-50 rounded"><div class="font-bold text-purple-600">' + avgScore + '</div><div class="text-xs text-gray-500">平均评分</div></div>' +
+                    '<div class="text-center p-2 ' + (avgScore >= posAvg ? 'bg-green-50' : 'bg-red-50') + ' rounded"><div class="font-bold ' + compareColor + '">' + compareText + '岗均</div><div class="text-xs text-gray-500">(' + posAvg + '分)</div></div>' +
+                    '</div>' +
+
+                    '<div class="mt-3 pt-3 border-t border-gray-100 flex flex-wrap items-center gap-3 text-xs text-gray-500">' +
+                    '<span><i class="fas fa-check-circle text-green-500 mr-1"></i>已评分 ' + scoreCount + '/' + count + ' 人</span>' +
+                    '<span><i class="fas ' + (hasScored ? 'fa-check-circle text-green-500' : 'fa-times-circle text-red-400') + ' mr-1"></i>打分 ' + (hasScored ? '已履行' : '未履行') + '</span>' +
+                    '<span><i class="fas ' + (hasCommented ? 'fa-check-circle text-green-500' : 'fa-times-circle text-red-400') + ' mr-1"></i>评语 ' + (hasCommented ? '已履行' : '未履行') + '</span>' +
+                    (needRemind ? '<span class="text-red-500 font-medium">' + remindText + '</span>' : '<span class="text-green-600">✅ 履职正常</span>') +
+                    '</div></div>';
+            }).join('');
+
+            document.getElementById('ledgerContent').innerHTML = html;
+        }
+
+        function renderHR() {
+            renderLedger();  // 每次刷新 HR 时更新台账
+            var filtered = getFilteredData();
+            var total = internData.length;
+            var total2 = filtered.length;
+
+            // 更新计数
+            document.getElementById('hrFilterCount').textContent = '共 ' + total2 + ' 人（全部 ' + total + ' 人）';
+
+            // 统计（基于筛选后的数据）
+            var avg = total2 > 0 ? Math.round(filtered.reduce(function(s, d) { return s + d.progress; }, 0) / total2) : 0;
+            var risk = filtered.filter(function(d) { return d.progress < 30; }).length;
+            var excellent = filtered.filter(function(d) { return d.progress > 80; }).length;
+
+            document.getElementById('hrTotal').textContent = total;
+            document.getElementById('hrAvg').textContent = avg + '%';
+            document.getElementById('hrRisk').textContent = risk;
+            document.getElementById('hrExcellent').textContent = excellent;
+
+            // 表格（使用筛选后的数据）
+            document.getElementById('hrTableBody').innerHTML = filtered.map(function(d) {
+                var isRisk = d.progress < 30;
+                var cls = isRisk ? 'bg-red-50 risk-glow' : '';
+                var color = isRisk ? 'text-red-600' : (d.progress > 80 ? 'text-green-600' : 'text-gray-700');
+                return '<tr class="' + cls + ' border-b border-gray-100">' +
+                    '<td class="py-2.5 pr-3"><div class="flex items-center gap-2"><span class="font-medium">' + d
+                    .name + '</span>' +
+                    (isRisk ? '<span class="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded">⚠️落后</span>' :
+                        '') + '</div></td>' +
+                    '<td class="py-2.5 pr-3 text-gray-600">' + d.position + '</td>' +
+                    '<td class="py-2.5 pr-3 text-gray-600">' + d.duration + '天</td>' +
+                    '<td class="py-2.5 pr-3"><span class="font-semibold ' + color + '">' + d.progress + '%</span></td>' +
+                    '<td class="py-2.5 pr-3 text-gray-600">' + d.mentorScore + '</td>' +
+                    '<td class="py-2.5 whitespace-nowrap">' +
+                    '<button class="text-xs px-2.5 py-1.5 rounded bg-[#165DFF] text-white mr-1 hover:bg-[#1146CC] transition" onclick="openMsgModal(\'' +
+                    d.name + '\',\'实习生\')">💬 私信实习生</button>' +
+                    '<button class="text-xs px-2.5 py-1.5 rounded bg-purple-600 text-white hover:bg-purple-700 transition" onclick="openMsgModal(\'' +
+                    d.name + '\',\'带教导师\')">💬 私信导师</button>' +
+                    '</td></tr>';
+            }).join('');
+
+            // 纯CSS柱状图（无需任何外部库）
+            var posAvg = {}, posCount = {};
+            filtered.forEach(function(d) {
+                if (!posAvg[d.position]) { posAvg[d.position] = 0; posCount[d.position] = 0; }
+                posAvg[d.position] += d.progress;
+                posCount[d.position]++;
+            });
+            var barKeys = Object.keys(posAvg);
+            var barColors = ['#165DFF', '#00A870', '#ED7B2F'];
+            var barHtml = barKeys.map(function(k, i) {
+                var val = Math.round(posAvg[k] / posCount[k]);
+                return '<div class="bar-item">' +
+                    '<span class="bar-label">' + k + '</span>' +
+                    '<div class="bar-track"><div class="bar-fill" style="width:' + val + '%;background:' + barColors[i] + '"></div>' +
+                    '<span class="bar-value">' + val + '%</span></div></div>';
+            }).join('');
+            document.getElementById('pureBarChart').innerHTML = barHtml;
+
+            // 纯CSS饼图（用 conic-gradient）
+            var low = filtered.filter(function(d) { return d.progress < 30; }).length;
+            var mid = filtered.filter(function(d) { return d.progress >= 30 && d.progress <= 80; }).length;
+            var high = filtered.filter(function(d) { return d.progress > 80; }).length;
+            var total = low + mid + high;
+            var lowDeg = total > 0 ? (low / total) * 360 : 0;
+            var midDeg = total > 0 ? (mid / total) * 360 : 0;
+            var highDeg = total > 0 ? (high / total) * 360 : 0;
+            var gradient = '#E34D59 0deg ' + lowDeg + 'deg, #f59e0b ' + lowDeg + 'deg ' + (lowDeg + midDeg) + 'deg, #00A870 ' + (lowDeg + midDeg) + 'deg 360deg';
+            document.getElementById('pieVisual').style.background = 'conic-gradient(' + gradient + ')';
+            document.getElementById('pieLegend').innerHTML =
+                '<div class="pie-item"><span class="pie-dot" style="background:#E34D59"></span>落后 ' + low + '人</div>' +
+                '<div class="pie-item"><span class="pie-dot" style="background:#f59e0b"></span>正常 ' + mid + '人</div>' +
+                '<div class="pie-item"><span class="pie-dot" style="background:#00A870"></span>优秀 ' + high + '人</div>';
+        }
+
+        // ================================================================
+        // 15. 一键复制汇总报告
+        // ================================================================
+        function copySummary() {
+            var avg = Math.round(internData.reduce(function(s, d) { return s + d.progress; }, 0) / internData.length);
+            var riskList = internData.filter(function(d) { return d.progress < 30; })
+                .map(function(d) { return d.name + '(' + d.progress + '%)'; }).join('、');
+            var excellentList = internData.filter(function(d) { return d.progress > 80; })
+                .map(function(d) { return d.name + '(' + d.progress + '%)'; }).join('、');
+            var now = new Date().toLocaleDateString('zh-CN');
+
+            var text = '===== 实习能量站 · 实习生汇总报告 =====\n' +
+                '报告日期：' + now + '\n' +
+                '总人数：' + internData.length + ' 人\n' +
+                '平均完成度：' + avg + '%\n' +
+                '优秀苗子（>80%）：' + (excellentList || '无') + '\n' +
+                '关注对象（<30%）：' + (riskList || '无') + '\n\n' +
+                '各实习生详情：\n' +
+                internData.map(function(d) {
+                    return d.name + ' | ' + d.position + ' | ' + d.duration + '天 | 完成度' + d.progress +
+                        '% | 评分' + d.mentorScore;
+                }).join('\n') +
+                '\n\n—— 由实习能量站智能看板生成 ——';
+
+            // 复制到剪贴板
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(function() {
+                    alert('✅ 汇总报告已复制到剪贴板，可粘贴到微信/邮件/文档中。');
+                }).catch(function() { fallbackCopy(text); });
+            } else {
+                fallbackCopy(text);
+            }
+        }
+
+        function fallbackCopy(text) {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            alert('✅ 汇总报告已复制到剪贴板，可粘贴到微信/邮件/文档中。');
+        }
+
+        // ================================================================
+        // 16. 私信弹窗功能
+        // ================================================================
+        /** 打开私信弹窗 */
+        function openMsgModal(name, role) {
+            document.getElementById('msgTarget').textContent = name;
+            document.getElementById('msgRole').value = role;
+            document.getElementById('msgContent').value = '';
+            document.getElementById('msgModal').classList.remove('hidden');
+        }
+
+        /** 关闭私信弹窗 */
+        function closeMsgModal(e) {
+            // 如果有点击事件且不是点击遮罩，不关闭
+            if (e && e.target !== document.getElementById('msgModal')) return;
+            document.getElementById('msgModal').classList.add('hidden');
+        }
+
+        /** 发送私信 */
+        function sendMsg() {
+            var target = document.getElementById('msgTarget').textContent;
+            var role = document.getElementById('msgRole').value;
+            var content = document.getElementById('msgContent').value.trim();
+            if (!content) { alert('请输入消息内容！'); return; }
+
+            // 保存到 localStorage 模拟发送记录
+            var msgs = JSON.parse(localStorage.getItem('privateMessages')) || [];
+            msgs.push({
+                to: target,
+                role: role,
+                content: content,
+                time: new Date().toLocaleString('zh-CN', { hour12: false }),
+                from: 'HR'
+            });
+            localStorage.setItem('privateMessages', JSON.stringify(msgs));
+
+            alert('✅ 私信已发送！\n\n收件人：' + target + '（' + role + '）\n内容：' + content);
+            document.getElementById('msgModal').classList.add('hidden');
+            document.getElementById('msgContent').value = '';
+        }
+
+        // ================================================================
+        // 17. 页面初始化（登录前仅加载数据，不显示任何视图）
+        // ================================================================
+        (function init() {
+            loadMentorScores();
+            loadLogs();
+            renderMentor();   // 预渲染以备导师登录后使用
+        })();
+
+        // 强制覆写：等待 Tailwind 加载完成后重新应用自定义样式
+        setTimeout(function() {
+            document.body.style.cssText =
+                'background: #eaecf0 !important;' +
+                'min-height: 100vh !important;';
+        }, 100);
+    </script>
+    </div><!-- /dashboardPage -->
+</body>
+</html>
