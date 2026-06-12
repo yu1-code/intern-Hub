@@ -1274,7 +1274,10 @@
                     '<div class="h-full rounded-full progress-fill" style="width:' +
                     d.progress + '%"></div></div>' +
                     '<span class="font-semibold text-gray-700 w-8 text-right">' + d.progress + '%</span></div>' +
-                    '<div class="text-xs text-gray-400 mt-2">导师评分：' + d.mentorScore + ' 分</div></div>';
+                    '<div class="flex items-center justify-between mt-2">' +
+                    '<span class="text-xs text-gray-400">导师评分：' + d.mentorScore + ' 分</span>' +
+                    '<button class="text-xs px-2.5 py-1 rounded bg-[#165DFF]/10 text-[#165DFF] hover:bg-[#165DFF] hover:text-white transition" onclick="event.stopPropagation();openMsgModal(\'' + d.name + '\',\'实习生\')">💬 私信</button>' +
+                    '</div></div>';
             }).join('');
 
             // 填充打分下拉（只显示本岗位实习生）
@@ -1819,13 +1822,14 @@
             if (!content) { alert('请输入消息内容！'); return; }
 
             // 保存到 localStorage 模拟发送记录
+            var senderName = (currentUser && currentUser.name) ? currentUser.name : 'HR';
             var msgs = JSON.parse(localStorage.getItem('privateMessages')) || [];
             msgs.push({
                 to: target,
                 role: role,
                 content: content,
                 time: new Date().toLocaleString('zh-CN', { hour12: false }),
-                from: 'HR'
+                from: senderName
             });
             localStorage.setItem('privateMessages', JSON.stringify(msgs));
 
